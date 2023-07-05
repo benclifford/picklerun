@@ -19,7 +19,7 @@ def picklerun(f):
 
     This invariant should roughly hold:
 
-    dill.loads(picklerun(f)(1)) == f(1)
+    picke.loads(picklerun(f)(1)) == f(1)
     """
     # this includes the decorator...
     src = dill.source.getsource(f, lstrip=True, alias="payload")
