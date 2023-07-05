@@ -3,6 +3,15 @@ picklerun
 
 Run function invocations remotely inside pickle deserialization
 
+
+    "It is possible to construct malicious pickle
+     data which will execute arbitrary code during
+     unpickling"
+         -- https://docs.python.org/3/library/pickle.html
+
+... but they don't give you much help doing so...  picklerun aims to solve this usability problem.
+
+
 Usage:
 
 ```
