@@ -5,22 +5,23 @@ import dill
 
 # try first with dill, as i think thats easier
 
+def runsource(body, name, args):
+    exec(body)
+    # return locals()[name](args)
+    return locals()["payload"](*args)
+
 class PickleRun:
-    def __init__(self, f, args, kwargs):
-        self.f = f
+    def __init__(self, src, name, args, kwargs):
+        self.src = src
+        self.name = name
         self.args = args
         self.kwargs = kwargs
 
+
     def __reduce__(self):
-        return (self.f, self.args)
+        print(f"picklerun reducer: got source: {self.src}")
 
-def picklerun_f(f, args=[], kwargs={}):
-    """Invoke f(*args, **kwargs) at deserialization.
-    The result of the function call will be returned as the deserialized
-    object.
-    """
-
-    return dill.dumps(PickleRun(f, args, kwargs))
+        return (runsource, (self.src, self.name, self.args))
 
 
 def picklerun(f):
@@ -30,9 +31,22 @@ def picklerun(f):
 
     dill.loads(picklerun(f)(1)) == f(1)
     """
+    # this includes the decorator...
+    src = dill.source.getsource(f, lstrip=True, alias="payload")
+
+    # so what's a nice way to remove it?
+    # could look for the first line being @picklerun, which is
+    # pretty horrible...
+    print(f"picklerun decorator: got source: {src}")
+
+    lines = src.split("\n")
+    lines = [l for l in lines if l != "@picklerun"]
+    src = "\n".join(lines)
+
+    print(f"picklerun decorator: filtered src: {src}")
 
     def wrapped(*args, **kwargs):
-        return picklerun_f(f, args=args, kwargs=kwargs)
+        return dill.dumps(PickleRun(src, f.__name__, args=args, kwargs=kwargs))
 
     return wrapped
 
@@ -42,16 +56,15 @@ else:
     @picklerun
     def myfunction(x, foo=3):
         """hello this is myfunction docstring"""
-        print("running myfunction")
+        print("demo: inside payload myfunction")
         return x+foo
 
     p = myfunction(10)
-    # p = picklerun_f(myfunction, (10, ))
-    print(f"pickle stream: {p!r}")
+    print(f"demo: top level pickle stream: {p!r}")
 
     with open("pr.pickle", "wb") as f:
         f.write(p)
 
     v = dill.loads(p)
-    print(f"unpickled result: {v!r}")
+    print(f"demo: unpickled result: {v!r}")
     assert v == 10+3
