@@ -39,22 +39,3 @@ def picklerun(f):
         return pickle.dumps(PickleRun(src, args=args, kwargs=kwargs))
 
     return wrapped
-
-if __name__ != "__main__":
-    raise RuntimeError("this module isn't allowed to be imported")
-else:
-    @picklerun
-    def myfunction(x, foo=3):
-        """hello this is myfunction docstring"""
-        print("demo: inside payload myfunction")
-        return x+foo
-
-    p = myfunction(10)
-    print(f"demo: top level pickle stream: {p!r}")
-
-    with open("pr.pickle", "wb") as f:
-        f.write(p)
-
-    v = dill.loads(p)
-    print(f"demo: unpickled result: {v!r}")
-    assert v == 10+3
