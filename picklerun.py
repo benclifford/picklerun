@@ -1,14 +1,5 @@
 import dill
-
-# TODO: would be interesting as a decorator to capture function invocation
-# syntax on the serialization side?
-
-# try first with dill, as i think thats easier
-
-def runsource(body, args):
-    exec(body)
-    # return locals()[name](args)
-    return locals()["payload"](*args)
+import pickle
 
 class PickleRun:
     def __init__(self, src, args, kwargs):
@@ -20,7 +11,7 @@ class PickleRun:
     def __reduce__(self):
         print(f"picklerun reducer: got source: {self.src}")
 
-        return (runsource, (self.src, self.args))
+        return (eval, ("(exec(b), payload(*a))[-1]", None, {"b": self.src, "a": self.args}))
 
 
 def picklerun(f):
@@ -45,7 +36,7 @@ def picklerun(f):
     print(f"picklerun decorator: filtered src: {src}")
 
     def wrapped(*args, **kwargs):
-        return dill.dumps(PickleRun(src, args=args, kwargs=kwargs))
+        return pickle.dumps(PickleRun(src, args=args, kwargs=kwargs))
 
     return wrapped
 
