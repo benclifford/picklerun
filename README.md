@@ -59,3 +59,7 @@ This gets source using dill.source. That has several problems:
       ...
   ```
 
+RELATED
+=======
+
+[Never a dill moment: Exploiting machine learning pickle files](https://blog.trailofbits.com/2021/03/15/never-a-dill-moment-exploiting-machine-learning-pickle-files/)
