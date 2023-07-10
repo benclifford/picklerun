@@ -19,12 +19,15 @@ from picklerun import picklerun
 
 @picklerun
 def myfunc(x):
-    print("HI!")
+    print("I am executing inside the deserialiser!")
     return x+1
 
 bytestream = myfunc(3)
 
 import pickle
+
+
+# outputs: "I am executing inside the deserialiser!" at this line
 assert pickle.loads(bytestream) == 3+1
 ```
 
@@ -42,7 +45,8 @@ kwargs aren't implemented. I don't think would be hard, though.
 This gets source using dill.source. That has several problems:
 
 * That doesn't work right for me in interactive sessions - it loses the
-  `return x+1` in the above example.
+  `return x+1` in the above example, due to dill source code discovery
+  not seeing the whole source code.
 
 * it is awkward to remove the decorator from the source code. Right now
   a literal `@picklerun` is removed if present, but using any other
