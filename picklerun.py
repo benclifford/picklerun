@@ -21,21 +21,21 @@ def picklerun(f):
 
     picke.loads(picklerun(f)(1)) == f(1)
     """
-    # this includes the decorator...
-    src = dill.source.getsource(f, lstrip=True, alias="payload")
-
-    # so what's a nice way to remove it?
-    # could look for the first line being @picklerun, which is
-    # pretty horrible...
-    print(f"picklerun decorator: got source: {src}")
-
-    lines = src.split("\n")
-    lines = [l for l in lines if l != "@picklerun"]
-    src = "\n".join(lines)
-
-    print(f"picklerun decorator: filtered src: {src}")
-
     def wrapped(*args, **kwargs):
+        # this includes the decorator...
+        src = dill.source.getsource(f, lstrip=True, alias="payload")
+
+        # so what's a nice way to remove it?
+        # could look for the first line being @picklerun, which is
+        # pretty horrible...
+        print(f"picklerun decorator: got source: {src}")
+
+        lines = src.split("\n")
+        lines = [l for l in lines if l != "@picklerun"]
+        src = "\n".join(lines)
+
+        print(f"picklerun decorator: filtered src: {src}")
+
         return pickle.dumps(PickleRun(src, args=args, kwargs=kwargs))
 
     return wrapped
