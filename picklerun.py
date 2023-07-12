@@ -1,4 +1,4 @@
-import dill
+import dill.source
 import pickle
 
 class PickleRun:
